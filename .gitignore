@@ -1,0 +1,5 @@
+pdf_articles/*.pdf
+test.pdf
+test_layout.pdf
+__pycache__/
+*.pyc
