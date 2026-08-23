@@ -1,118 +1,231 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Арбитражный Темщик - Крипто Спреды</title>
+    <title>SOTRUE.RU // Quantum Arbitrage</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind Config for Custom Theme -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            accent: '#10b981', // green for profit
+                        },
+                        dark: {
+                            900: '#050505',
+                            800: '#111111',
+                            700: '#1a1a1a',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'blob': 'blob 7s infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #121212;
-            color: #00ff00;
-            margin: 0;
-            padding: 20px;
+            background-color: #050505;
+            background-image: radial-gradient(circle at 50% 0%, #111 0%, #050505 70%);
+            color: #f3f4f6;
+            overflow-x: hidden;
         }
-        h1 {
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
+
+        .glass-panel {
+            background: rgba(17, 17, 17, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
-        .subtitle {
-            text-align: center;
-            color: #888;
-            margin-bottom: 30px;
+
+        .gradient-text {
+            background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
         table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #1e1e1e;
-            box-shadow: 0 0 10px rgba(0,255,0,0.1);
+            border-collapse: separate;
+            border-spacing: 0;
         }
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #333;
-        }
+
         th {
-            background-color: #2a2a2a;
-            color: #fff;
+            position: sticky;
+            top: 0;
+            background: rgba(17, 17, 17, 0.95);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+            transform: scale(1.002);
+        }
+
+        td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .exchange-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
-            font-size: 0.9em;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ccc;
+            transition: all 0.2s;
         }
-        tr:hover {
-            background-color: #2a2a2a;
-        }
-        .spread-positive {
-            color: #00ff00;
-            font-weight: bold;
-        }
-        .spread-negative {
-            color: #ff0000;
-        }
-        .loading {
-            text-align: center;
-            font-size: 1.2em;
-            margin-top: 50px;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-        button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #00ff00;
-            color: #000;
-            border: none;
-            font-weight: bold;
-            font-family: inherit;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-        button:hover {
-            background-color: #00cc00;
-        }
-        .error {
-            color: red;
-            text-align: center;
-            margin-top: 20px;
+
+        .exchange-badge:hover {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Крипто-Арбитраж: Темщик Edition</h1>
-        <div class="subtitle">Сканируем Binance, Bybit, OKX, Kraken. Ищем связки.</div>
+<body class="min-h-screen relative font-sans antialiased text-gray-300">
 
-        <button id="refreshBtn">Обновить данные (Искать связки)</button>
-
-        <div id="status" class="loading">Загрузка данных с бирж... (может занять до 10-15 сек)</div>
-
-        <table id="arbitrageTable" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Пара</th>
-                    <th>Где купить (Ask)</th>
-                    <th>Цена покупки</th>
-                    <th>Где продать (Bid)</th>
-                    <th>Цена продажи</th>
-                    <th>Гросс профит</th>
-                    <th>Спред (%)</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <!-- Data will be inserted here -->
-            </tbody>
-        </table>
+    <!-- Background Animated Blobs -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob"></div>
+        <div class="absolute top-0 -right-4 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-8 left-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob animation-delay-4000"></div>
     </div>
+
+    <!-- Main Container -->
+    <main class="relative z-10 container mx-auto px-4 py-12 max-w-7xl flex flex-col min-h-screen">
+
+        <!-- Header Section -->
+        <header class="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
+            <div class="text-center md:text-left">
+                <div class="inline-block px-3 py-1 mb-4 rounded-full border border-gray-800 bg-dark-800/50 text-xs font-medium text-gray-400 backdrop-blur-sm">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-brand-accent animate-pulse"></span>
+                        AI-Powered Market Scanner
+                    </span>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-display font-bold tracking-tight mb-2">
+                    Quantum <span class="gradient-text">Arbitrage</span>
+                </h1>
+                <p class="text-gray-400 text-sm md:text-base max-w-xl">
+                    Алгоритмический поиск межбиржевых спредов в реальном времени. Интеграция с Binance, Bybit, OKX, Kraken и трендами CoinGecko.
+                </p>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center gap-4">
+                <button id="refreshBtn" class="group relative px-6 py-3 font-medium text-white transition-all duration-300 bg-brand-600 rounded-lg hover:bg-brand-500 hover:shadow-[0_0_20px_rgba(14,165,233,0.4)] focus:outline-none focus:ring-2 focus:ring-brand-400 focus:ring-offset-2 focus:ring-offset-dark-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                    <svg class="w-5 h-5 transition-transform group-hover:rotate-180 duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <span>Сканировать рынок</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Status & Stats Module -->
+        <div id="statsPanel" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 hidden">
+            <div class="glass-panel rounded-xl p-6 flex flex-col justify-center">
+                <span class="text-gray-500 text-sm font-medium mb-1 uppercase tracking-wider">Найдено связок</span>
+                <span id="statCount" class="text-3xl font-display font-bold text-white">0</span>
+            </div>
+            <div class="glass-panel rounded-xl p-6 flex flex-col justify-center">
+                <span class="text-gray-500 text-sm font-medium mb-1 uppercase tracking-wider">Макс. Спред</span>
+                <span id="statMaxSpread" class="text-3xl font-display font-bold text-brand-accent">0.00%</span>
+            </div>
+            <div class="glass-panel rounded-xl p-6 flex flex-col justify-center">
+                <span class="text-gray-500 text-sm font-medium mb-1 uppercase tracking-wider">Последнее обновление</span>
+                <span id="statTime" class="text-xl font-display font-medium text-gray-300">--:--:--</span>
+            </div>
+        </div>
+
+        <!-- System State Module -->
+        <div id="systemState" class="mb-8 p-4 rounded-xl glass-panel text-center">
+            <div class="flex flex-col items-center justify-center gap-3 py-8">
+                <div class="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+                <h3 class="text-lg font-medium text-white">Инициализация нейросетей...</h3>
+                <p class="text-sm text-gray-400">Связываемся с API бирж, загружаем тренды.</p>
+            </div>
+        </div>
+
+        <!-- Data Table Module -->
+        <div id="tableContainer" class="glass-panel rounded-xl overflow-hidden hidden flex-grow flex flex-col shadow-2xl border border-gray-800">
+            <div class="overflow-x-auto flex-grow">
+                <table class="w-full text-sm text-left">
+                    <thead class="text-xs text-gray-400 uppercase tracking-wider">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 font-medium">Торговая пара</th>
+                            <th scope="col" class="px-6 py-4 font-medium">Покупка (Ask)</th>
+                            <th scope="col" class="px-6 py-4 font-medium text-right">Цена входа</th>
+                            <th scope="col" class="px-6 py-4 font-medium">Продажа (Bid)</th>
+                            <th scope="col" class="px-6 py-4 font-medium text-right">Цена выхода</th>
+                            <th scope="col" class="px-6 py-4 font-medium text-right">Gross Profit</th>
+                            <th scope="col" class="px-6 py-4 font-medium text-right">Spread</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-gray-800/50">
+                        <!-- Dynamic rows here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="mt-auto py-8 text-center text-sm text-gray-600">
+            <p>SOTRUE.RU © 2024. Experimental UI by Premium Web Studio.</p>
+            <p class="mt-1">Trading involves risk. Always DYOR.</p>
+        </footer>
+
+    </main>
 
     <script src="app.js"></script>
 </body>
