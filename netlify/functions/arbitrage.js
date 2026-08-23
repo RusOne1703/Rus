@@ -1,13 +1,37 @@
 const ccxt = require('ccxt');
 
+// Helper to fetch data using native fetch
+async function fetchTrendingCoins() {
+  try {
+    const res = await fetch('https://api.coingecko.com/api/v3/search/trending');
+    if (!res.ok) return [];
+    const data = await res.json();
+    // Get top 5 trending coins
+    const trendingSymbols = data.coins
+      .slice(0, 5)
+      .map(item => `${item.item.symbol.toUpperCase()}/USDT`);
+    return trendingSymbols;
+  } catch (error) {
+    console.error('Failed to fetch trending coins:', error);
+    return [];
+  }
+}
+
 exports.handler = async function (event, context) {
   try {
     // We instantiate the exchanges we want to monitor
     const exchangeIds = ['binance', 'bybit', 'okx', 'kraken'];
     const exchanges = exchangeIds.map(id => new ccxt[id]({ enableRateLimit: true }));
 
-    // Define the pairs we want to look at
-    const symbols = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'XRP/USDT'];
+    // Define the base pairs we want to look at
+    let symbols = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'XRP/USDT'];
+
+    // Fetch dynamic trending coins from CoinGecko API
+    const trendingCoins = await fetchTrendingCoins();
+    console.log('Trending coins fetched:', trendingCoins);
+
+    // Merge base pairs with trending pairs (and remove duplicates)
+    symbols = [...new Set([...symbols, ...trendingCoins])];
 
     let arbitrageOpportunities = [];
 
@@ -88,6 +112,7 @@ exports.handler = async function (event, context) {
       body: JSON.stringify({
         success: true,
         timestamp: new Date().toISOString(),
+        trendingAdded: trendingCoins.length > 0,
         opportunities: arbitrageOpportunities
       })
     };
