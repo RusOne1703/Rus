@@ -1,0 +1,24 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RusOne1703/Rus.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/RusOne1703/Rus/issues"
+  },
+  "homepage": "https://github.com/RusOne1703/Rus#readme",
+  "dependencies": {
+    "ccxt": "^4.5.75"
+  }
+}
