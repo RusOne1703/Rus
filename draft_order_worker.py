@@ -15,26 +15,32 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', 'YOUR_CHAT_ID_HERE')
 
-# Конфигурация директории и таймаута
-DRAFT_DIR = Path('.data/draft-orders')
-# Время, после которого корзина считается "брошенной" (в секундах). Например, 30 минут = 1800 сек.
+# Абсолютный путь к директории с драфтами (надежно для запуска через cron)
+BASE_DIR = Path(__file__).resolve().parent
+DRAFT_DIR = BASE_DIR / '.data' / 'draft-orders'
+
+# Время, после которого корзина считается "брошенной" (в секундах).
 ABANDONED_THRESHOLD_SEC = 1800
 
 def send_telegram_alert(draft_data):
     """Отправляет уведомление менеджерам в Telegram (без сторонних зависимостей)."""
 
-    # Извлекаем и экранируем данные, чтобы не сломать HTML parse_mode Telegram'а
     phone = html.escape(str(draft_data.get('customer_phone', 'Не указан')))
     telegram = html.escape(str(draft_data.get('customer_telegram', 'Не указан')))
 
-    # Ссылку нужно экранировать как для атрибута href, так и для текста, но urllib справляется,
-    # однако амперсанды в URL могут сломать HTML-парсер, если вставлять как текст.
-    raw_link = str(draft_data.get('product_link', 'Не указано'))
-    product_link = html.escape(raw_link)
-
+    raw_link = str(draft_data.get('product_link', '')).strip()
     product_name = html.escape(str(draft_data.get('product_name', 'Не указано')))
     size = html.escape(str(draft_data.get('size', 'Не указано')))
     created_at = html.escape(str(draft_data.get('created_at', 'Неизвестно')))
+
+    # Безопасное формирование ссылки: Telegram падает с 400 Bad Request,
+    # если в href передать невалидный URL (например "Не указано" или пустую строку)
+    if raw_link.startswith('http://') or raw_link.startswith('https://'):
+        link_html = f"<a href='{html.escape(raw_link)}'>Poizon Link</a>"
+    elif raw_link:
+        link_html = html.escape(raw_link) # Если просто ввели текст, выводим как текст
+    else:
+        link_html = "Не указана"
 
     text = (
         "🚨 <b>Брошенная корзина!</b>\n\n"
@@ -42,7 +48,7 @@ def send_telegram_alert(draft_data):
         f"✈️ <b>Telegram:</b> {telegram}\n\n"
         f"👟 <b>Товар:</b> {product_name}\n"
         f"📏 <b>Размер:</b> {size}\n"
-        f"🔗 <b>Ссылка:</b> <a href='{product_link}'>Poizon Link</a>\n\n"
+        f"🔗 <b>Ссылка:</b> {link_html}\n\n"
         f"🕒 <i>Создано: {created_at}</i>\n\n"
         "👉 Свяжитесь с клиентом в WhatsApp/Telegram и предложите помощь с оформлением!"
     )
